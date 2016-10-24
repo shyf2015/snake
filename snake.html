@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>贪吃蛇小游戏</title>
+	<link rel="stylesheet" type="text/css" href="snake.css">
+</head>
+<body>
+	<ul class="container">
+		
+		<div class="control">
+			&nbsp<button id="start">开始</button><br><br>
+			&nbsp<button id="pause">暂停</button><br><br>
+			&nbsp&nbsp难度<br>
+			&nbsp<select>
+				<option value="1000">简单</option>
+				<option value="500" selected="selected">中等</option>
+				<option value="200">困难</option>
+				<option value="50">变态</option>
+			</select>
+		</div>
+	</ul>
+<script src="jquery.js"></script>
+<script type="text/javascript">
+	(function(){
+		var pos = [];
+		var appleLeft,appleTop;
+		var start;
+		var speed = 500;
+		var flag = false;
+		var fn = right;
+		init();
+		$('#start').on('click',function(){
+			start = setInterval(fn,speed);
+			flag = true;
+		})
+		$('#pause').on('click',function(){
+			clearInterval(start);
+			flag = false;
+		})
+		$('select').on('change',function(){
+			speed = $(this).val();
+		})
+		function init(){
+			for(var i=0;i<3;i++){
+				$('.container').append('<li></li>');
+				$('.container li').eq(i).css({
+					'left':100-i*20,
+					'top':60
+				})
+				pos.push({'left':100-i*20,'top':60});
+			}
+			$('.container').append('<span></span>');
+			apple();
+		}
+		function apple(){
+			var left = Math.random()*30|0;
+			var top = Math.random()*20|0;
+			$('.container span').css({
+				'left':left*20,
+				'top':top*20
+			});
+			appleLeft = left*20;
+			appleTop = top*20;
+			$('.container span').show();
+		}
+		$(window).on('keydown',function(e){
+			if(flag==false){return;}
+			var _left,_top;
+			var keyvalue = e.keyCode;
+			switch(keyvalue){
+				case 37:left();clearInterval(start);fn=left;start=setInterval(left,speed);break;
+				case 38:up();clearInterval(start);fn=up;start=setInterval(up,speed);break;
+				case 39:right();clearInterval(start);fn=right;start=setInterval(right,speed);break;
+				case 40:down();clearInterval(start);fn=down;start=setInterval(down,speed);break;
+			}
+		})
+		function right(){
+			_left = pos[0]['left']+20;
+			_top = pos[0]['top'];
+			if(pos[1]['left']==_left){return;}
+			move();	
+		}
+		function left(){
+			_left = pos[0]['left']-20;
+			_top = pos[0]['top'];
+			if(pos[1]['left']==_left){return;}
+			move();	
+		}
+		function up(){
+			_left = pos[0]['left'];
+			_top = pos[0]['top']-20;
+			if(pos[1]['top']==_top){return;}
+			move();	
+		}
+		function down(){
+			_left = pos[0]['left'];
+			_top = pos[0]['top']+20;
+			if(pos[1]['top']==_top){return;}
+			move();	
+		}
+		function move(){
+			pos.forEach(function(n){
+				if(n['left']==_left && n['top']==_top){
+					alert('你死了!点击确定重新开始');
+					window.location.reload();//页面刷新，游戏重新开始
+				}
+			})
+			if(_left<0 || _left>580 || _top<0 ||_top>380){
+				alert('你死了!点击确定重新开始');
+				window.location.reload();//页面刷新，游戏重新开始
+			}
+			var snakeLength = $('.container li').length;
+			for(var i = snakeLength-1;i>0;i--){
+				$('.container li').eq(i).css({
+					'left':pos[i-1]['left'],
+					'top':pos[i-1]['top']
+				})
+			}
+			$('.container li').eq(0).css({
+				'left':_left,
+				'top':_top
+			})
+			if(_left==appleLeft && _top==appleTop){
+				$('.container').append('<li></li>');
+				$('.container li').eq($('.container li').length-1).css({
+					'left':pos[pos.length-1]['left'],
+					'top':pos[pos.length-1]['top']
+				})
+				apple();
+				pos.unshift({'left':_left,'top':_top});
+			}else{
+				pos.unshift({'left':_left,'top':_top});
+				pos.pop();
+			}
+		}
+	})();
+</script>
+</body>
+</html>
